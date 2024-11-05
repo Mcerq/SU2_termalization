@@ -1,5 +1,6 @@
 #include <stdio.h>	
 #include <stdlib.h>
+#include <stddef.h> // Para uso de size_t
 #include <math.h>
 #include "funcoes_SU(2).h"
 
@@ -7,9 +8,7 @@
 
 double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 
-	double a0, a1, a2, a3;
-	double b0, b1, b2, b3;
-	double c0, c1, c2, c3;
+	double a[COMPONENTS], b[COMPONENTS], c[COMPONENTS];
 	int m[4];
 	const int n[4] = {n1, n2, n3, n4};
 
@@ -18,10 +17,12 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	//Elementos da primeira matriz U(n,mu)
 	//======================================
 	
-	a0 = U[n1][n2][n3][n4][mu][0];
-	a1 = U[n1][n2][n3][n4][mu][1];
-	a2 = U[n1][n2][n3][n4][mu][2];
-	a3 = U[n1][n2][n3][n4][mu][3];
+	// Atribui valores para U(n+mu, nu)
+    for (size_t i = 0; i < COMPONENTS; i++) {
+        
+        a[i] = U[n1][n2][n3][n4][mu][i];
+        
+    }
 
 	//======================================
 	// Coordenadas do ponto vizinho n+mu
@@ -41,19 +42,17 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	// Elementos da segunda matriz U(n+mu,nu)
 	//=======================================
 
-	b0 = U[m[0]][m[1]][m[2]][m[3]][nu][0];
-	b1 = U[m[0]][m[1]][m[2]][m[3]][nu][1];
-	b2 = U[m[0]][m[1]][m[2]][m[3]][nu][2];
-	b3 = U[m[0]][m[1]][m[2]][m[3]][nu][3];
+	for (size_t i = 0; i < COMPONENTS; i++) {
+        
+        b[i] = U[m[0]][m[1]][m[2]][m[3]][nu][i];
+        
+    }
 
 	//======================================================
 	// Produto matricial entre U(n,mu) e U(n+mu,nu) = Unew
 	//======================================================
 
-	prodMatriz(a0, a1, a2, a3, b0, b1, b2, b3, &c0, &c1, &c2, &c3);
-
-
-
+	prodMatriz(a, b, c);
 	
 	//========================================
 	// Coordenadas do ponto vizinho n+nu
@@ -79,25 +78,42 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	// Elementos da terceira matriz U(n+nu,mu)
 	//========================================
 
-	a0 = U[m[0]][m[1]][m[2]][m[3]][mu][0];
-	a1 = U[m[0]][m[1]][m[2]][m[3]][mu][1];
-	a2 = U[m[0]][m[1]][m[2]][m[3]][mu][2];
-	a3 = U[m[0]][m[1]][m[2]][m[3]][mu][3];
+	for (size_t i = 0; i < COMPONENTS; i++) {
+        
+		
+        a[i] = U[m[0]][m[1]][m[2]][m[3]][mu][i];
+        
+    }
+
+	for (size_t i = 1; i < COMPONENTS; i++) {
+  	
+	      a[i] = -a[i]; // Torna a[i] negativa
+  	  	
+	
+	}
 	
 	//=========================================================
 	// Produto matricial entre Unew e U(n+nu,mu) = Unew2
 	//=========================================================
 	
-	prodMatriz(c0, c1, c2, c3, a0, -a1, -a2, -a3, &b0, &b1, &b2, &b3);
+	prodMatriz(c, a, b);
 
 	//========================================
 	// Elementos da quarta matriz U(n,nu)
 	// =======================================
 
-	a0 = U[n1][n2][n3][n4][nu][0];
-	a1 = U[n1][n2][n3][n4][nu][1];
-	a2 = U[n1][n2][n3][n4][nu][2];
-	a3 = U[n1][n2][n3][n4][nu][3];
+	for (size_t i = 0; i < COMPONENTS; i++) {
+        
+        a[i] = U[n1][n2][n3][n4][nu][i];
+        
+    }
+
+	for (size_t i = 1; i < COMPONENTS; i++){
+  	
+	      a[i] = -a[i]; // Torna a[i] negativa
+
+	
+	}
 
 	// Produto entre as matrizes U(n+j,i) e U(n,j), lembrando que temos que elas sao
 	// matrizes com "dagger", no qual suas componentes espaciais ganham sinal de (-)
@@ -107,13 +123,13 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	// Produto matricial entre Unew2 e U(n,nu) = Unew3
 	//==========================================================
 
-	prodMatriz(b0, b1, b2, b3, a0, -a1, -a2, -a3, &c0, &c1, &c2, &c3);
+	prodMatriz(b, a, c);
 
 	//=========================================================
 	// O Tra�o ser� a soma da diagonal da matriz Unew3.
 	//=========================================================
 
-	return c0;
+	return c[0];
 }
 
 void acao() {

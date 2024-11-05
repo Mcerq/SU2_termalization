@@ -5,19 +5,13 @@
 
 //Funcao que esta diretamente relacionada com o produto entre os links.
 
-void prodMatriz (double e0, double e1, double e2, double e3, double f0, double f1, double f2,
-				 double f3, double *g0, double *g1, double *g2, double *g3) {
+void prodMatriz (double e[COMPONENTS], double f[COMPONENTS], double g[COMPONENTS]) {
 	
-	// Verificação de ponteiros nulos
-        if (!g0 || !g1 || !g2 || !g3) {
-                fprintf(stderr, "Erro: ponteiro de saída nulo passado para prodMatriz.\n");
-                return;
-        }
-
-	*g0 = (e0 * f0) - (e1 * f1) - (e2 * f2) - (e3 * f3);
-	*g1 = (e0 * f1) + (e1 * f0) - (e2 * f3) + (e3 * f2);
-	*g2 = (e0 * f2) + (e1 * f3) + (e2 * f0) - (e3 * f1);
-	*g3 = (e0 * f3) - (e1 * f2) + (e2 * f1) + (e3 * f0);
+	
+	g[0] = (e[0] * f[0]) - (e[1] * f[1]) - (e[2] * f[2]) - (e[3] * f[3]);
+	g[1] = (e[0] * f[1]) + (e[1] * f[0]) - (e[2] * f[3]) + (e[3] * f[2]);
+	g[2] = (e[0] * f[2]) + (e[1] * f[3]) + (e[2] * f[0]) - (e[3] * f[1]);
+	g[3] = (e[0] * f[3]) - (e[1] * f[2]) + (e[2] * f[1]) + (e[3] * f[0]);
 
 	
 	}

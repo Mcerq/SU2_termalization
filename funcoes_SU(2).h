@@ -86,9 +86,9 @@ int* vizinhoPeriEsq(const int vector[4], int direction);
 //Produto de matrizes (ProdutoMatrizes.c)
 //====================================================================================
 
-void prodMatriz(double e0, double e1, double e2, double e3,
-				double f0, double f1, double f2, double f3,
-				double *g0, double *g1, double *g2, double *g3);
+void prodMatriz(double e[COMPONENTS],
+				double f[COMPONENTS],
+				double g[COMPONENTS]);
 
 
 
@@ -103,16 +103,16 @@ void acao();
 // Funcoes para os grampos no calculo de algoritmos de monte carlo (grampos.c)
 //====================================================================================
 
-void grampoSuperior(int x, int y, int z, int t, int i, int j, double *e0, double*e1, double *e2, double *e3);
-void grampoInferior(int x, int y, int z, int t, int i, int j, double *e0, double*e1, double *e2, double *e3);
-void somaGrampos(int x, int y, int z, int t, int i, double *b0, double *b1, double *b2, double *b3);
+void grampoSuperior(int x, int y, int z, int t, int i, int j, double e[COMPONENTS]);
+void grampoInferior(int x, int y, int z, int t, int i, int j, double e[COMPONENTS]);
+void somaGrampos(int x, int y, int z, int t, int i, double b[COMPONENTS]);
 
 
 //====================================================================================
 // Funcoes para calculo de banho termico (banhoTermico.c)
 //====================================================================================
 
-void banhoTermico(int x, int y, int z, int t, int i, double*f0, double *f1, double *f2, double *f3, double *e0, double *e1, double *e2, double *e3);
+void banhoTermico(int x, int y, int z, int t, int i, double f[COMPONENTS], double e[COMPONENTS]);
 double novaacaoHeatBath(int n1, int n2, int n3, int n4, int mu);
 void heatSweep();
 void termalizacaoHeatBath();
