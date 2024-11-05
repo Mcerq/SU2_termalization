@@ -45,12 +45,14 @@ int main(int argc, char* argv[]) {
 		// Funcoes de inicializacao do  programa
 		//===============================================================================================================
 		
-		U = alocarMatrizReal (N, N, N, NT, d, 4);
-		vd = alocarMatrizInteiro (N, N, N, NT, d, 4);
-		ve = alocarMatrizInteiro (N, N, N, NT, d, 4);
+		U = (double ******)alocarMatriz6D(N, N, N, NT, d, 4);
+	//	vd = (int ******)alocarMatriz6D(N, N, N, NT, d, 4);
+	//	ve = (int ******)alocarMatriz6D(N, N, N, NT, d, 4);
+		//U = alocarMatrizReal (N, N, N, NT, d, 4);
+		//vd = alocarMatrizInteiro (N, N, N, NT, d, 4);
+		//ve = alocarMatrizInteiro (N, N, N, NT, d, 4);
 		coldStart();              		// Faz a inicializacao das matrizes de links como matriz unitaria;
-		vizinhoPeriDir();	  		// Faz a inicializacao dos vizinhos da direita;
-		vizinhoPeriEsq();	  		// Faz a inicializacao dos vizinhos da esquerda;
+	
 
 		//=============================================================================================
 		// Termalizacao do programa

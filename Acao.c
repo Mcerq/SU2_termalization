@@ -10,7 +10,9 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	double a0, a1, a2, a3;
 	double b0, b1, b2, b3;
 	double c0, c1, c2, c3;
-	int m1, m2, m3, m4;
+	int m[4];
+	const int n[4] = {n1, n2, n3, n4};
+
 
 	//======================================
 	//Elementos da primeira matriz U(n,mu)
@@ -25,19 +27,24 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 	// Coordenadas do ponto vizinho n+mu
 	//======================================
 
-	m1 = vd[n1][n2][n3][n4][mu][0];
-	m2 = vd[n1][n2][n3][n4][mu][1];
-	m3 = vd[n1][n2][n3][n4][mu][2];
-	m4 = vd[n1][n2][n3][n4][mu][3];
+    // Chama a função e recebe um novo vetor modificado
+	int* resultadoMu = vizinhoPeriDir(n, mu);
+
+	// Copia o resultado para 'm' para preservá-lo forma do escopo da função
+	for(int i=0; i < COMPONENTS; i++){
+
+		m[i] = resultadoMu[i];
+	
+	}
 
 	//=======================================
 	// Elementos da segunda matriz U(n+mu,nu)
 	//=======================================
 
-	b0 = U[m1][m2][m3][m4][nu][0];
-	b1 = U[m1][m2][m3][m4][nu][1];
-	b2 = U[m1][m2][m3][m4][nu][2];
-	b3 = U[m1][m2][m3][m4][nu][3];
+	b0 = U[m[0]][m[1]][m[2]][m[3]][nu][0];
+	b1 = U[m[0]][m[1]][m[2]][m[3]][nu][1];
+	b2 = U[m[0]][m[1]][m[2]][m[3]][nu][2];
+	b3 = U[m[0]][m[1]][m[2]][m[3]][nu][3];
 
 	//======================================================
 	// Produto matricial entre U(n,mu) e U(n+mu,nu) = Unew
@@ -45,23 +52,37 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 
 	prodMatriz(a0, a1, a2, a3, b0, b1, b2, b3, &c0, &c1, &c2, &c3);
 
+
+
+	
 	//========================================
 	// Coordenadas do ponto vizinho n+nu
 	//========================================
 	
-	m1 = vd[n1][n2][n3][n4][nu][0];
-	m2 = vd[n1][n2][n3][n4][nu][1];
-	m3 = vd[n1][n2][n3][n4][nu][2];
-	m4 = vd[n1][n2][n3][n4][nu][3];
+
+	// Chama a função e recebe um novo vetor modificado
+	int* resultadoNu = vizinhoPeriDir(n, nu);
+
+	// Copia o resultado para 'm' para preservá-lo forma do escopo da função
+	for(int j=0; j < COMPONENTS; j++){
+
+		m[j] = resultadoNu[j];
+	
+	}
+	
+	vizinhoPerDir(m, nu);
+	
+	
+
 
 	//========================================
 	// Elementos da terceira matriz U(n+nu,mu)
 	//========================================
 
-	a0 = U[m1][m2][m3][m4][mu][0];
-	a1 = U[m1][m2][m3][m4][mu][1];
-	a2 = U[m1][m2][m3][m4][mu][2];
-	a3 = U[m1][m2][m3][m4][mu][3];
+	a0 = U[m[0]][m[1]][m[2]][m[3]][mu][0];
+	a1 = U[m[0]][m[1]][m[2]][m[3]][mu][1];
+	a2 = U[m[0]][m[1]][m[2]][m[3]][mu][2];
+	a3 = U[m[0]][m[1]][m[2]][m[3]][mu][3];
 	
 	//=========================================================
 	// Produto matricial entre Unew e U(n+nu,mu) = Unew2
@@ -97,18 +118,15 @@ double plaqueta(int n1, int n2, int n3, int n4, int mu, int nu) {
 
 void acao() {
 
-	int n1, n2, n3, n4;
-	int mu, nu;
-	double plaq;
+	double plaq = 0.0;
 
-	plaq = 0.0;
 
-	for (n1 = 0; n1 < N; n1++) {
-		for (n2 = 0; n2 < N; n2++) {
-			for (n3 = 0; n3 < N; n3++) {
-				for (n4 = 0; n4 < NT; n4++) {
-					for (mu = 0; mu < d; mu++) {
-						for (nu = mu + 1; nu < d; nu++) {
+	for (int n1 = 0; n1 < N; n1++) {
+		for (int n2 = 0; n2 < N; n2++) {
+			for (int n3 = 0; n3 < N; n3++) {
+				for (int n4 = 0; n4 < NT; n4++) {
+					for (int mu = 0; mu < d; mu++) {
+						for (int nu = mu + 1; nu < d; nu++) {
 							  
 							plaq += plaqueta(n1, n2, n3, n4, mu, nu);
 						  
@@ -119,6 +137,6 @@ void acao() {
 		}
 	}
 
-	S = 0.5*beta[coupling]*(1.0-plaq/(6.0*NR*NR*NR*NTR));
+	S = 0.5*beta[coupling]*(1.0-plaq / NORMALIZADOR_PLAQ );
 
 }

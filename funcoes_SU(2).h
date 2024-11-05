@@ -2,13 +2,19 @@
 #include <stdlib.h>
 
 
-#define  N		         20			    	  	  // Uma rede 3d com todas as direcoes iguais.
-#define  NT       	 	 20			 		   	  // Direcao temporal da rede.
-#define  d               4					  	  // Dimensao do espaaco-tempo.
-#define  pi		         3.14159265358979323846   // Numero pi.
-#define NR			 	 20.0
-#define NTR			 	 20.0
-#define dR			 	 4.0
+#define  N		          20			    	  // Uma rede 3d com todas as direcoes iguais.
+#define  NT       	  	  20			 		  // Direcao temporal da rede.
+#define  d                4					  	  // Dimensao do espaaco-tempo.
+#define  pi		          3.14159265358979323846  // Numero pi.
+#define COMPONENTS 		  4 					  // Define a constante para o número de componentes da matriz SU(2)
+#define VOLUME            (N*N*N*NT)              // Define o calculo de volume
+#define NORMALIZADOR_PLAQ (6 * N * N * N * NT)
+
+#define CHECK_ALLOC(ptr) \
+    if ((ptr) == NULL) { \
+        printf("** Erro: Memoria Insuficiente **\n"); \
+        return NULL; \
+    }
 
 
 
@@ -72,8 +78,8 @@ void testeunitario(double a0, double a1, double a2, double a3);
 // Tabela de vizinhos (vizinhos.c)
 //====================================================================================
 
-void vizinhoPeriDir();
-void vizinhoPeriEsq();
+int* vizinhoPeriDir(const int vector[4], int direction);
+int* vizinhoPeriEsq(const int vector[4], int direction);
 
 
 //====================================================================================
@@ -134,11 +140,20 @@ void saveLattice();
 //Funcoes que criam matrizes grandes com alocacao de memoria
 //====================================================================================
 
-double ******alocarMatrizReal (int a1, int a2, int a3, int a4, int a5, int a6);
-double ******liberarMatrizReal (int a1, int a2, int a3, int a4, int a5, int a6, double ******v);
+void ******alocarMatriz6D(size_t dim1, size_t dim2, size_t dim3, size_t dim4, size_t dim5, size_t dim6);
+void *****alocarMatriz5D(size_t dim2, size_t dim3, size_t dim4, size_t dim5, size_t dim6);
+void ****alocarMatriz4D(size_t dim3, size_t dim4, size_t dim5, size_t dim6);
+void ***alocarMatrix3D(size_t dim4, size_t dim5, size_t dim6);
+void **alocarMatrix2D(size_t dim5, size_t dim6);
+void *alocarMatriz1D(size_t dim6);
 
-int ******alocarMatrizInteiro (int a1, int a2, int a3, int a4, int a5, int a6);
-int ******liberarMatrizInteiro (int a1, int a2, int a3, int a4, int a5, int a6, int ******v);
+
+void liberarMatriz6D(size_t dim1, size_t dim2, size_t dim3, size_t dim4, size_t dim5, size_t dim6, void ******matrix);
+void liberarMatriz5D(size_t dim2, size_t dim3, size_t dim4, size_t dim5, size_t dim6, void *****matrix);
+void liberarMatriz4D(size_t dim3, size_t dim4, size_t dim5, size_t dim6, void ****matrix);
+void liberarMatriz3D(size_t dim4, size_t dim5, size_t dim6, void ***matrix);
+void liberarMatriz2D(size_t dim5, size_t dim6, void **matrix);
+void liberarMatriz1D(size_t dim6, void *matrix);
 
 void contadorLinhasBeta();
 

@@ -7,71 +7,80 @@ void contadorLinhasBeta() {
 	FILE *arq;
 	char Linha[100];
 	char *result;
-	int i;
-	int j;
+	int i = 0;
 	double temp, a, sigma;
 	char filename1[100];
 	
 	sprintf(filename1,"//media/user/Seagate Expansion Drive/su2/arquivos_betas_NT%01d.txt", NT);
 	arq = fopen(filename1, "r");
 	
-	if (arq == NULL){  						// Se houve erro na abertura
-	
-		printf("Problemas na abertura do arquivo de betas 1\n");
+	if (arq == NULL){ // Verificação de erro
+		perror("Problemas na abertura do arquivo de betas\n");
  			return;
-	
 	}
 	
-	i = 0;
-	
-	while (!feof(arq)){	// Lê uma linha (inclusive com o '\n')
+	// Contar o número de linhas no arquivo
+	while (fgets(Linha, sizeof(Linha), arq) != NULL){ // Uso de fgets para controle de loop
  
-      		result = fgets(Linha, 100, arq);  // o 'fgets' lê até 99 caracteres ou até o '\n'
   			i++;
 	
 	}
 	
 	numerobeta = i;
-	fclose(arq);
-	
-	arq = fopen(filename1, "r");
- 
-            if (arq == NULL){                                               // Se houve erro na abertura
- 
-                    printf("Problemas na abertura do arquivo de betas 2\n");
-                    return;
- 
-            }
-	
-	beta = (double *) malloc(numerobeta*sizeof(double));
-	
-	for(j = 0; j < numerobeta; j++){
-	
-		fscanf(arq, "%lf, %lf, %lf, %lf\n", &temp, &beta[j], &a, &sigma);
-				
+	rewind(arq); // Retornar ao início do arquivo para leitura
+
+	// Alocação da matriz beta
+	beta = (double *)alocarMatriz1D(numerobeta);
+	if(beta == NULL){
+
+		printf("Falha na alocação de memória para beta \n");
+		fclose(arq); // Fechar o arquivo antes de retornar
+		return;
+
 	}
 
-	fclose(arq);
+	// Ler os valores do arquivo
+	for(int j = 0; j < numerobeta; j++){
+
+		if(fscanf(arq, "%lf, %lf, %lf, %lf\n", &temp, &beta[j], &a, &sigma) != 4){ //Verificação da leitura
+
+			print("Erro ao ler os dados do arquivo \n");
+			free(beta);	 // Libera a memória alocada
+			fclose(arq);	// Fechar o arquivo
+			return;
+
+		}
+
+	}
+
+	fclose(arq);	 // Fechar o arquivo
+
 }
 
 
 
 void coldStart() {
 
-	int n1, n2, n3, n4;
-	int mu;
+	// Verifique a integridade de U antes de usar
+    if (U == NULL) {
+        fprintf(stderr, "Erro: a matriz U não foi alocada corretamente.\n");
+        return;
+    }
 
-	for (n1 = 0; n1 < N; n1++) {
-		for (n2 = 0; n2 < N; n2++) {
-			for (n3 = 0; n3 < N; n3++) {
-				for (n4 = 0; n4 < NT; n4++) {
-					for (mu = 0; mu < d; mu++) {
+	for (int n1 = 0; n1 < N; n1++) {
+		for (int n2 = 0; n2 < N; n2++) {
+			for (int n3 = 0; n3 < N; n3++) {
+				for (int n4 = 0; n4 < NT; n4++) {
+					for (int mu = 0; mu < d; mu++) {
 
+						// Inicializa cada componente da matriz
 						U[n1][n2][n3][n4][mu][0] = 1.0;
-						U[n1][n2][n3][n4][mu][1] = 0.0;
-						U[n1][n2][n3][n4][mu][2] = 0.0;
-						U[n1][n2][n3][n4][mu][3] = 0.0;
+						
+						 for (int comp = 1; comp < COMPONENTS; comp++) {
 
+                            U[n1][n2][n3][n4][mu][comp] = 0.0; // Partes imaginárias
+
+						}
 					}
 				}
 			}
@@ -79,120 +88,69 @@ void coldStart() {
 	}
 }
 
-void vizinhoPeriDir() {
 
-    	int n1;                 // Primeira entrada do vetor N.
-    	int n2;                 // Segunda entrada do vetor N.
-   		int n3;                 // Terceira entrada do vetor N.
-    	int n4;                 // Quarta entrada do vetor NT.
-    	int mu;                 // direcao que ele tem.
-    	int n[4];
 
-    	for (n1 = 0; n1 < N; n1++) {
-            	for (n2 = 0; n2 < N; n2++) {
-                    	for (n3 = 0; n3 < N; n3++) {
-                            	for (n4 = 0; n4 < NT; n4++) {
-                                    	for (mu = 0; mu < d; mu++) {
 
-                                            	n[0] = n1;
-                                            	n[1] = n2;
-                                            	n[2] = n3;
-                                            	n[3] = n4;
-                                            	n[mu] += 1;
+int* vizinhoPeriDir(const int vector[4], int direction){
 
-                                            	if (n[0] == N) {
+	static int newVector[COMPONENTS];
+	
+	for (int i; i < COMPONENTS; i++){
 
-                                                    	n[0] = 0;
+		newVector[i] = vector[i];
 
-                                            	}
+	}
 
-                                            	if (n[1] == N) {
+	// Incrementa a coordenada especificada por direction
 
-                                                    	n[1] = 0;
+ 	newVector[direction] += 1;
+    
+	for(int i = 0; i < COMPONENTS; i++){ // Para as três primeiras dimensões
 
-                                            	}
-                                            	
-												if (n[2] == N) {
-      
-	                                                	n[2] = 0;
-   
-                                            	}
-                                            
-												if (n[3] == NT) {
-         
-		                                            	n[3] = 0;
-   
-                                            	}
-   
-                                            	vd[n1][n2][n3][n4][mu][0] = n[0];
-                                            	vd[n1][n2][n3][n4][mu][1] = n[1];
-                                            	vd[n1][n2][n3][n4][mu][2] = n[2];
-                                            	vd[n1][n2][n3][n4][mu][3] = n[3];
-   
-                                    	}
-                            	}
-                    	}
-            	}
-    	}
+		if(i < 3 && vector[i] == N){
+
+			newVector[i] = 0;
+
+		}else if(i == 3 && vector[i] == NT){ // Para a quarta dimensão
+
+			newVector[i] = 0;
+		}
+
+	}
+
+	return newVector;
 
 }
 
-void vizinhoPeriEsq() {
 
+int* vizinhoPeriEsq(const int vector[4], int direction) {
 
-    	int n1;                         // Primeira entrada do vetor N.
-    	int n2;                         // Segunda entrada do vetor N.
-    	int n3;                         // Terceira entrada do vetor N.
-    	int n4;                         // Quarta entrada do vetor N.
-    	int mu;
-    	int n[4];
+    static int newVector[COMPONENTS];
+	
+	for (int i; i < COMPONENTS; i++){
 
-        for (n1 = 0; n1 < N; n1++) {
-            	for (n2 = 0; n2 < N; n2++) {
-    	                for (n3 = 0; n3 < N; n3++) {
-                    	        for (n4 = 0; n4 < NT; n4++) {
-                            	        for (mu = 0; mu < d; mu++) {
+		newVector[i] = vector[i];
 
-                                    	        n[0] = n1;
-                                           		n[1] = n2;
-                                           		n[2] = n3;
-												n[3] = n4;
-                                            	n[mu] -= 1;
-      
-	                                        	if (n[0] == -1) {
-   
-                                                    	n[0] = N - 1;
-														  
-	                                         	}
+	}
 
-                                            	if (n[1] == -1) {
+	// Incrementa a coordenada especificada por direction
+    newVector[direction] -= 1;
 
-                                                    	n[1] = N - 1;
+    // Verifica a periodicidade para cada dimensão
+    for (int i = 0; i < COMPONENTS; i++) {
+        
+		if (i < 3 && vector[i] == -1) { // Para as três primeiras dimensões
+        	
+			newVector[i] = N - 1;
+        
+		} else if (i == 3 && vector[i] == -1) { // Para a quarta dimensão
+            
+			newVector[i] = NT - 1;
+        
+		}
+    
+	}
 
-                                            	}
+	return newVector;
 
-                                            	if (n[2] == -1) {
-
-                                                    	n[2] = N - 1;
-
-                                            	}
-
-                                            	if (n[3] == -1) {
-
-                                                    	n[3] = NT - 1;
-
-                                            	}
-
-                                            	ve[n1][n2][n3][n4][mu][0] = n[0];
-                                            	ve[n1][n2][n3][n4][mu][1] = n[1];
-                                            	ve[n1][n2][n3][n4][mu][2] = n[2];
-                                            	ve[n1][n2][n3][n4][mu][3] = n[3];
-
-                                    	}
-                            	}
-                    	}
-            	}
-    	}
-
-}                                                
-
+}

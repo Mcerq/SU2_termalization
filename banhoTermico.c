@@ -42,7 +42,7 @@ void banhoTermico(int n1, int n2, int n3, int n4, int mu,
 		r2 = ranmar();
 		r3 = ranmar();
 		
-		aux = cos(2.0*pi*r2);
+		aux = cos(2.0 *  pi * r2);
 		lambda2 = -(log(r1) + aux*aux*log(r3)) / (2.0*a*beta[coupling]);
 		
 		aux = ranmar();
@@ -110,7 +110,7 @@ double novaacaoHeatBath(int n1, int n2, int n3, int n4, int mu) {
             aux = 0.5*beta[coupling]*(ax0 * (u0 - aux0) -
                     ax1 * (u1 - aux1) -
                     ax2 * (u2 - aux2) -
-                    ax3 * (u3 - aux3))/(NR*NR*NR*NTR*6.0);
+                    ax3 * (u3 - aux3))/(NORMALIZADOR_PLAQ);
 	
 	
 	return aux;
